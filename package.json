@@ -12,5 +12,13 @@
   "type": "commonjs",
   "dependencies": {
     "dayjs": "^1.11.23"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mateovj03/explorador-apod.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mateovj03/explorador-apod/issues"
+  },
+  "homepage": "https://github.com/mateovj03/explorador-apod#readme"
 }
