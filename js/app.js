@@ -24,7 +24,7 @@ function mostrarImagen(apod) {
   }
 }
 
-//funcionalidad 2
+//funcionalidad 2.
 const fechaInput = document.getElementById("fechaInput");
 const btnBuscar = document.getElementById("btn-buscar");
 const mensaje = document.getElementById("mensaje");
