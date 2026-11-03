@@ -6,14 +6,18 @@ const enlaceVideo = document.getElementById("enlaceVideo");
 
 // ---------- Mostrar la imagen de la APOD ----------
 function mostrarImagen(apod) {
-    // hdurl trae la imagen (el campo url NO es la imagen)
-    imagen.src = apod.hdurl;
+    if (!apod.hdurl) {
+        imagen.removeAttribute("src");
+        imagen.alt = "Imagen no disponible";
+    } else {
+        imagen.src = apod.hdurl;
+        imagen.alt = apod.title;
+    }
 
-    // El alt es igual al título
-    imagen.alt = apod.title;
+    imagen.onerror = function () {
+        imagen.alt = "No se pudo cargar la imagen";
+    };
 
-    // Si es video, hdurl trae una vista previa: se muestra igual
-    // y aparece el enlace para ver el video en la NASA
     if (apod.media_type === "video") {
         enlaceVideo.href = apod.permalink;
         enlaceVideo.hidden = false;
@@ -32,39 +36,39 @@ const PRIMERA_APOD = "1995-06-16";
 fechaInput.max = dayjs().format("YYYY-MM-DD");
 
 function mostrarMensaje(texto) {
-  mensaje.textContent = texto;
-  mensaje.hidden = false;
+    mensaje.textContent = texto;
+    mensaje.hidden = false;
 }
 
 function limpiarMensaje() {
-  mensaje.textContent = "";
-  mensaje.hidden = true;
+    mensaje.textContent = "";
+    mensaje.hidden = true;
 }
 
 function validarFecha(fecha) {
-  if (!fecha) {
-    return "Por favor elige una fecha.";
-  }
-  if (dayjs(fecha).isAfter(dayjs(), "day")) {
-    return "Esa fecha es futura: la NASA aún no tiene esa APOD.";
-  }
-  if (dayjs(fecha).isBefore(dayjs(PRIMERA_APOD), "day")) {
-    return "La primera APOD es del 16 de junio de 1995. Elige una fecha posterior.";
-  }
-  return null;
+    if (!fecha) {
+        return "Por favor elige una fecha.";
+    }
+    if (dayjs(fecha).isAfter(dayjs(), "day")) {
+        return "Esa fecha es futura: la NASA aún no tiene esa APOD.";
+    }
+    if (dayjs(fecha).isBefore(dayjs(PRIMERA_APOD), "day")) {
+        return "La primera APOD es del 16 de junio de 1995. Elige una fecha posterior.";
+    }
+    return null;
 }
 
 function buscarPorFecha() {
-  const fecha = fechaInput.value;
-  const error = validarFecha(fecha);
+    const fecha = fechaInput.value;
+    const error = validarFecha(fecha);
 
-  if (error) {
-    mostrarMensaje(error);
-    return;
-  }
+    if (error) {
+        mostrarMensaje(error);
+        return;
+    }
 
-  limpiarMensaje();
-  cargarAPOD(dayjs(fecha).format("YYMMDD"));
+    limpiarMensaje();
+    cargarAPOD(dayjs(fecha).format("YYMMDD"));
 }
 
 btnBuscar.addEventListener("click", buscarPorFecha);
@@ -89,23 +93,14 @@ async function obtenerApod(url) {
         const datos = await respuesta.json();
         apodActual = Array.isArray(datos) ? datos[0] : datos;
         fechaActualId = apodActual.date;
-
+        mostrarImagen(apodActual);
         const fechaEspanol = dayjs(fechaActualId).format("D [de] MMMM [de] YYYY");
-        let enlaceVideoHTML = "";
-
-        if (apodActual.media_type === "video") {
-            enlaceVideoHTML = `<p><a href="${apodActual.permalink}" target="_blank" rel="noopener noreferrer" class="btn-video">📺 Ver el video en NASA</a></p>`;
-        }
 
         contenedorApod.innerHTML = `
-            <h2>${apodActual.title}</h2>
-            <p class="fecha">${fechaEspanol}</p>
-            <div class="media-container">
-                <img src="${apodActual.hdurl}" alt="${apodActual.title}" id="apod-img">
-            </div>
-            ${enlaceVideoHTML}
-            <div class="explicacion">${apodActual.explanation}</div>
-        `;
+        <h2>${apodActual.title}</h2>
+        <p class="fecha">${fechaEspanol}</p>
+        <div class="explicacion">${apodActual.explanation}</div>
+     `;
 
         btnSiguiente.disabled =
             dayjs(fechaActualId).isSame(dayjs(), "day") ||
